@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo dõi Ra vào</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Theo dõi Ra vào</h1>
+        <p class="text-center text-muted">Thông tin người ra vào</p>
+        
+        <table class="table table-bordered mt-4">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Ngày và Giờ</th>
+                </tr>
+            </thead>
+            <tbody id="data-table">
+                <!-- Dữ liệu sẽ được điền từ Firebase -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrlmzqEPUppwnApdL0yByRIulnyFd30iU",
+            authDomain: "doan-nhung-fd085.firebaseapp.com",
+            databaseURL: "https://doan-nhung-fd085-default-rtdb.firebaseio.com",
+            projectId: "doan-nhung-fd085",
+            storageBucket: "doan-nhung-fd085.firebasestorage.app",
+            messagingSenderId: "395155518154",
+            appId: "1:395155518154:web:b532b1348035912badfa33",
+            measurementId: "G-SN9Y8CT21Y"
+        };
+
+        // Khởi tạo Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Gán tên cho các ID
+        const idToNameMap = {
+            770871989078: "HỒ MINH ĐẾ",
+            219470631745: "CHU VĂN MỎ",
+            // Thêm ID và tên khác tại đây
+        };
+
+        // Tham chiếu tới dữ liệu Firebase
+        const ref = db.ref("rfid_data");
+
+        // Đọc dữ liệu từ Firebase và cập nhật bảng
+        ref.on("value", (snapshot) => {
+            const data = snapshot.val();
+            const tableBody = document.getElementById("data-table");
+            tableBody.innerHTML = ""; // Xóa nội dung cũ
+
+            if (data) {
+                for (const key in data) {
+                    const item = data[key];
+                    const name = idToNameMap[item.rfid_uid] || "Không rõ"; // Tìm tên từ ID, nếu không có thì mặc định là "Không rõ"
+                    const row = `
+                        <tr>
+                            <td>${item.rfid_uid}</td>
+                            <td>${name}</td>
+                            <td>${item.timestamp}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
